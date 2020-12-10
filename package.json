@@ -1,0 +1,22 @@
+{
+  "name": "mysticssimpbot",
+  "version": "1.0.0",
+  "description": "Mystics wonderful device",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tanner1638/MysticsSimpBot.git"
+  },
+  "author": "Tanner Overly - Mystic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tanner1638/MysticsSimpBot/issues"
+  },
+  "homepage": "https://github.com/Tanner1638/MysticsSimpBot#readme",
+  "dependencies": {
+    "discord.js": "^12.5.1"
+  }
+}

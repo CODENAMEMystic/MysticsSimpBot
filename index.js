@@ -32,12 +32,15 @@ bot.on('ready', () => {
 //Music player queue map
 const queue = new Map();
 
+
 //Music Player default embed
 const defaultMusicPlayerEmbed = new Discord.MessageEmbed()
   .setColor('#0099ff')
   .setAuthor('No songs playing currently', 'https://i.imgur.com/kvgsN9a.png')
   .setImage(`https://i.pinimg.com/originals/75/6e/11/756e11784356a1e57639df839931b10b.jpg`)
   .setFooter(`Prefix for this server is ${PREFIX}`);
+
+
 
 
 //When message is sent in discord server:
@@ -130,9 +133,10 @@ async function execute(message, serverQueue) {
     );
   }
 
+  
   const songInfo = await ytdl.getInfo(args[1], function (err, info) {
     console.log(`test: ${info.thumbnail_url}`)
-  });
+  }); 
 
   const song = {
     title: songInfo.videoDetails.title,
@@ -158,6 +162,7 @@ async function execute(message, serverQueue) {
       var connection = await voiceChannel.join();
       queueContruct.connection = connection;
       play(message.guild, queueContruct.songs[0]);
+      
     } catch (err) {
       console.log(err);
       queue.delete(message.guild.id);
@@ -166,7 +171,7 @@ async function execute(message, serverQueue) {
   } else {
     serverQueue.songs.push(song);
     purge(message, 1);
-    return message.channel.send(createEmbed(serverQueue, song));
+    return message.channel.send(createEmbed(serverQueue, serverQueue.songs[0]));
   }
 }
 
@@ -188,7 +193,7 @@ function stop(message, serverQueue) {
       "You have to be in a voice channel to stop the music!"
     );
   purge(message, 2);
-  message.channel.send(defaultMusicPlayerEmbed);
+  //message.channel.send(defaultMusicPlayerEmbed);    //Removed until further noticed
   serverQueue.songs = [];
 
   serverQueue.connection.dispatcher.end();
@@ -197,7 +202,7 @@ function stop(message, serverQueue) {
 function play(guild, song) {
   const serverQueue = queue.get(guild.id);
   if (!song) {
-    serverQueue.textChannel.send(defaultMusicPlayerEmbed);
+    //serverQueue.textChannel.send(defaultMusicPlayerEmbed);    //removed until further noticed
     serverQueue.voiceChannel.leave();
     queue.delete(guild.id);
     
@@ -210,7 +215,8 @@ function play(guild, song) {
     .on("finish", () => {
       serverQueue.songs.shift();
       play(guild, serverQueue.songs[0]);
-
+      serverQueue.textChannel.bulkDelete(1)
+      .catch(error => console.log(`Error: ${error}`));
     })
     .on("error", error => console.error(error));
   dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
@@ -240,7 +246,7 @@ function createEmbed(queue, song){
 
 function purge(message, amount){
   message.channel.bulkDelete(amount)
-    .catch(error => message.channel.send(`Error: ${error}`));
+    .catch(error => console.log(`Error: ${error}`));
 }
 
 //Keep at end of file ;)

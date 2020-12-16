@@ -94,21 +94,6 @@ bot.on('message', message => {
       break;
 
     case "test":
-      //Workzone
-      const songQueueInfo = '**Queue List:**\n 1. Song 1\n 2. Song 2\n 3. Song 3'
-      const exampleEmbed = new Discord.MessageEmbed()
-        .setColor('#0099ff')
-        .setAuthor('Song Currently Playing Name', 'https://i.imgur.com/kvgsN9a.png', 'https://google.com')
-        //.setThumbnail('https://i.imgur.com/wSTFkRM.png')
-
-        .setImage('https://i.ytimg.com/vi/IHoj7qvNmwk/hqdefault.jpg') //Image of youtube video
-        .setTimestamp()
-        .setFooter('# songs in queue | Volume: ##%');
-
-      message.channel.send(songQueueInfo);
-      message.channel.send(exampleEmbed);
-      //End of workzone
-
       break;
 
   }
@@ -133,10 +118,8 @@ async function execute(message, serverQueue) {
     );
   }
 
-  
-  const songInfo = await ytdl.getInfo(args[1], function (err, info) {
-    console.log(`test: ${info.thumbnail_url}`)
-  }); 
+
+  const songInfo = await ytdl.getInfo(args[1]);
 
   const song = {
     title: songInfo.videoDetails.title,
@@ -162,7 +145,7 @@ async function execute(message, serverQueue) {
       var connection = await voiceChannel.join();
       queueContruct.connection = connection;
       play(message.guild, queueContruct.songs[0]);
-      
+
     } catch (err) {
       console.log(err);
       queue.delete(message.guild.id);
@@ -184,7 +167,7 @@ function skip(message, serverQueue) {
   if (!serverQueue)
     return message.channel.send("There is no song that I could skip!");
   serverQueue.connection.dispatcher.end();
-  
+
 }
 
 function stop(message, serverQueue) {
@@ -205,7 +188,7 @@ function play(guild, song) {
     //serverQueue.textChannel.send(defaultMusicPlayerEmbed);    //removed until further noticed
     serverQueue.voiceChannel.leave();
     queue.delete(guild.id);
-    
+
     return;
   }
 
@@ -216,11 +199,11 @@ function play(guild, song) {
       serverQueue.songs.shift();
       play(guild, serverQueue.songs[0]);
       serverQueue.textChannel.bulkDelete(1)
-      .catch(error => console.log(`Error: ${error}`));
+        .catch(error => console.log(`Error: ${error}`));
     })
     .on("error", error => console.error(error));
   dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-  
+
   //serverQueue.textChannel.send(songQueueInfo);
   serverQueue.textChannel.send(createEmbed(serverQueue, song));
   //End of workzone  */
@@ -233,18 +216,18 @@ function log(message, command) {
   console.log(`User: ${message.author} has used ${command}`)
 }
 
-function createEmbed(queue, song){
+function createEmbed(queue, song) {
   const exampleEmbed = new Discord.MessageEmbed()
-  .setColor('#0099ff')
-  .setAuthor(song.title, 'https://i.imgur.com/kvgsN9a.png', song.url)
+    .setColor('#0099ff')
+    .setAuthor(song.title, 'https://i.imgur.com/kvgsN9a.png', song.url)
 
-  .setImage(`https://img.youtube.com/vi/${song.id}/maxresdefault.jpg`) //Image of youtube video
-  .setTimestamp()
-  .setFooter(`${queue.songs.length} songs in queue | Volume: ##%`);
+    .setImage(`https://img.youtube.com/vi/${song.id}/maxresdefault.jpg`) //Image of youtube video
+    .setTimestamp()
+    .setFooter(`${queue.songs.length} songs in queue | Volume: ##%`);
   return exampleEmbed;
 }
 
-function purge(message, amount){
+function purge(message, amount) {
   message.channel.bulkDelete(amount)
     .catch(error => console.log(`Error: ${error}`));
 }

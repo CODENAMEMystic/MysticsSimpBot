@@ -52,6 +52,10 @@ bot.on('message', message => {
   const serverQueue = queue.get(message.guild.id);
 
   if (message.content.startsWith(`${PREFIX}play`)) {
+    if(msg.indexOf("youtube") == -1){
+      message.channel.send("Invalid YouTube Link ;)");
+      return;
+    }
     execute(message, serverQueue);
     message.delete();
     return;
@@ -119,7 +123,9 @@ async function execute(message, serverQueue) {
   }
 
 
-  const songInfo = await ytdl.getInfo(args[1]);
+  const songInfo = await ytdl.getInfo(args[1]).catch(error => console.log(`Error: ${error}`));
+
+
 
   const song = {
     title: songInfo.videoDetails.title,
@@ -177,6 +183,9 @@ function stop(message, serverQueue) {
     );
   purge(message, 2);
   //message.channel.send(defaultMusicPlayerEmbed);    //Removed until further noticed
+  if(!serverQueue){
+    return;
+  }
   serverQueue.songs = [];
 
   serverQueue.connection.dispatcher.end();

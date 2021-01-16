@@ -3,9 +3,10 @@
 
 const Discord = require('discord.js'); //Discord API
 const key = require('./secret.js'); //Saved variable info
+const reactionRoleDatabase = require('./reactionRoles.json');
 const ytdl = require("ytdl-core");
+var fs = require('fs'); //quite honestly dont know what this is for
 
-//var fs = require('fs'); //quite honestly dont know what this is for
 
 const {
   Client,
@@ -22,11 +23,45 @@ const PREFIX = "!"; //Defines the prefix to use bot commands
 
 //const admin = 'AdminRoleIdHere'; //Will be used later to allow users within admin rank to interact with the bot
 
+var serverData = fs.readFileSync('./servers.json'),
+  serverObj;
+
+
+var servers = loadServers();
+
+
+
+
+
+
+
+
+
 
 //Initialize bot
 bot.on('ready', () => {
   console.log('Mystic Simp Bot is online!');
 });
+
+//USER JOINS THE DISCORD SERVER
+bot.on('guildMemberAdd', member => {
+  const channel = member.guild.channels.cache.find(channel => channel.name === "userlog");
+  if (!channel) return;
+
+  channel.send(`User: ${member} has joined`)
+  //member.send(`Welcome to Mystic's OG Squad!!\nIn order to unlock the server make sure to join either The Boys or The Girls by reacting to the message in #auto-rolls\nhttps://discord.com/channels/723441004002148374/743629567771672707/745142005637841007`)
+
+});
+
+bot.on('guildMemberRemove', member => {
+  const channel = member.guild.channels.cache.find(channel => channel.name === "userlog");
+
+  if (!channel) return;
+
+  channel.send(`User: ${member} has left.`)
+  //member.send(`I'm sorry to see you go! If you ever want to rejoin heres my link :)\nhttps://discord.gg/yyRzuYwMEp`);
+
+})
 
 
 //Music player queue map
@@ -43,6 +78,8 @@ const defaultMusicPlayerEmbed = new Discord.MessageEmbed()
 
 
 
+var serverOfInterest;
+
 //When message is sent in discord server:
 bot.on('message', message => {
   if (!message.content.startsWith(PREFIX) || message.author.bot) return;
@@ -50,33 +87,29 @@ bot.on('message', message => {
 
   //Music Player Related:
   const serverQueue = queue.get(message.guild.id);
-
-  if (message.content.startsWith(`${PREFIX}play`)) {
-    execute(message, serverQueue);
-    message.delete();
-    return;
-  } else if (message.content.startsWith(`${PREFIX}skip`)) {
-    skip(message, serverQueue);
-    return;
-  } else if (message.content.startsWith(`${PREFIX}stop`)) {
-    stop(message, serverQueue);
-    return;
-  }
-
-
   let args = message.content.substring(PREFIX.length).split(" ");
   switch (args[0]) {
-    case "status":
-      message.reply('Received and heard well. Doing just fine over here')
+    case "play":
+      if (msg.indexOf("youtube") == -1) {
+        message.channel.send("Invalid YouTube Link ;)");
+        break;
+      }
+      execute(message, serverQueue);
+      message.delete();
+      break;
+
+    case "skip":
+      skip(message, serverQueue);
+      break;
+
+    case "stop":
+      stop(message, serverQueue);
       break;
 
     case "playing":
-      log(message, "playing");
-
       let playArg = args.slice(1).join(" ");
       bot.user.setActivity(playArg);
       break;
-
 
     case "listening":
       log(message, "listening");
@@ -87,19 +120,215 @@ bot.on('message', message => {
       }).catch(console.error);
       break;
 
-
     case "ping":
-      message.channel.send('pong!');
-      timeOfLastUse = message.createdTimestamp;
+      message.channel.send("pong!");
+      break;
+
+    case "poll":
+      log(message, "poll");
+
+      const Embed = new Discord.MessageEmbed()
+        .setColor(0xFFC300)
+        .setTitle("Initiate Poll")
+        .setDescription("!poll to initiate a simple yes or no poll");
+
+      if (!args[1]) {
+        message.channel.send(Embed);
+        break;
+      }
+
+      let msgArgs = args.slice(1).join(" ");
+
+      message.channel.send(msgArgs).then(messageReaction => {
+        messageReaction.react("👍");
+        messageReaction.react("👎");
+        message.delete()
+      });
+      break;
+
+    case "disabledstats":
+      message.reply("Calculating");
+      break;
+
+    case "save":
+      saveServer();
+      break;
+
+    case "load":
+      loadServers();
+      break;
+
+    case "new":
+      console.log(`ah welcome, i will add this server: NEW HAS BEEN USED`);
+      servers.instances.push(new Server(message.guild));
+
+      saveServer();
+      break;
+
+    case "stats":
+      locate(message, args[1]);
+
+      var d = new Date(0);
+      d.setUTCMilliseconds(userOfInterest.joinedTimestamp);
+
+      message.reply(`\n**Display Name:** ${userOfInterest.displayName}\n**Joined:** ${d}\n**ID:** ${userOfInterest.userID}`);
+      break;
+
+    case "admin":
+      if (message.member.hasPermission('ADMINISTRATOR')) message.reply('User is an admin.');
+      break;
+    case "emojireact":
+      message.react("726490836228898847");
       break;
 
     case "test":
+      const filter = message.author.id;
+      const reactionRoleEmbed = new Discord.MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle('Reaction Role - Setup part 1')
+        .setDescription('First of all you need to tag the channel that you would like the ReactionRole message to be sent. You need to reply within 3 minutes of this message before I cancel it, this also goes for every single question that will follow.')
+
+      //SETUP PART 1 - TAG CHANNEL
+      message.channel.send(reactionRoleEmbed);
+
+      message.channel.awaitMessages(m => m.author.id == message.author.id, {
+        max: 1,
+        time: 10000
+      }).then(collected => {
+        console.log(`We received: ${collected.first().content}`)
+
+        const reactionRoleEmbed = new Discord.MessageEmbed()
+          .setTitle('Reaction Role - Setup Part 2')
+          .setDescription(`Nice type! Now time to choose your message! Please send me your message id.\nMake sure the message is in the ${collected.first().content}\nTo add multiple roles to a message choose the same id!\n\nExample (Do not use this ID as it will not work for you!)\n700020971150639195`);
+
+        //SETUP PART 2 - TAG MESSAGE ID
+        message.channel.send(reactionRoleEmbed);
+
+        message.channel.awaitMessages(m => m.author.id == message.author.id, {
+          max: 1,
+          time: 10000
+        }).then(collected => {
+          console.log(`We received: ${collected.first().content}`)
+
+          const reactionRoleEmbed = new Discord.MessageEmbed()
+            .setTitle('Reaction Role - Setup Part 3')
+            .setDescription(`Message ID: ${collected.first()}\nPlease REACT TO THIS MESSAGE with the reaction you want to use! DO NOT USE NITRO EMOJIS THAT IS NOT IN THIS GUILD (I have no way of accessing them!)`);
+          message.channel.send(reactionRoleEmbed);
+
+          //SETUP PART 3 - 
+          message.channel.awaitMessages((m => m.author.id == message.author.id), {
+            max: 1,
+            time: 100000
+          }).then(collected => {
+            console.log(`We received: ${collected.first().content}`)
+
+            const reactionRoleEmbed = new Discord.MessageEmbed()
+              .setTitle('Reaction Role - Setup Part 4')
+              .setDescription(`Emoji Selected: ${collected.first()}\nPlease tag, write the name or the id of the role you want to give!`);
+
+          //SETUP PART 4
+            message.channel.send(reactionRoleEmbed);
+
+            message.channel.awaitMessages(m => m.author.id == message.author.id, {
+              max: 1,
+              time: 10000
+            }).then(collected => {
+              console.log(`We received: ${collected.first().content}`)
+
+              const reactionRoleEmbed = new Discord.MessageEmbed()
+                .setTitle('Reaction Role - Setup Part 5')
+                .setDescription(`Role Selected: ${collected.first()}\nNow you need to choose what type of reaction role you want. Please reply with 1-4.\nYou can combine them to add a role and remove a role\nI am going to explain what thoes numbers are for you:\n\nThis is the normal Reaction Role, when you react you get the role and when you remove the reaction it gets removed. Just like magic right?\n This creates a reaction that will only give a role and not remove it when they unreact.\nThis is basically just as number 2, only difference is that it removes the role instead of giving it\nIt is type 1 [gives the role and removes it] but it is inverted: The bot takes the role when you react and gives it back when you unreact.`);
+              
+          //SETUP PART 5
+              message.channel.send(reactionRoleEmbed);
+
+              message.channel.awaitMessages(m => m.author.id == message.author.id, {
+                max: 1,
+                time: 10000
+              }).then(collected => {
+                console.log(`We received: ${collected.first().content}`)
+  
+                const reactionRoleEmbed = new Discord.MessageEmbed()
+                  .setTitle('Reaction Role - Complete')
+                  .setDescription(`You have completed setup`);
+
+            //COMPLETE
+                message.channel.send(reactionRoleEmbed);
+                reactionRoleDatabase.instances.push(new ReactionRole(message.guild));
+  
+  
+  
+              }).catch(() => {
+                message.reply('No answer after 30 seconds, operation canceled.');
+              })
+
+
+
+            }).catch(() => {
+              message.reply('No answer after 30 seconds, operation canceled.');
+            })
+
+          }).catch(() => {
+            message.reply('No answer after 30 seconds, operation canceled.');
+          })
+
+        }).catch(() => {
+          message.reply('No answer after 30 seconds, operation canceled.');
+        })
+
+      }).catch(() => {
+        message.reply('No answer after 30 seconds, operation canceled.');
+      })
+
+
+
+
+
+
+
+      /*
+      const reactionRoleEmbed = new Discord.MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle('Reaction Role - Setup part 1')
+      	.setDescription('First of all you need to tag the channel that you would like the ReactionRole message to be sent. You need to reply within 3 minutes of this message before I cancel it, this also goes for every single question that will follow.')
+
+      message.channel.send(reactionRoleEmbed);
+      */
       break;
 
+
+
+
+  }
+})
+
+
+
+
+
+function locate(message, IDofInterest) {
+
+  if (IDofInterest == undefined) { //If id is not given, set id to author of message
+    IDofInterest = message.author.id;
+  }
+
+  //find server in instances array
+  var serverPos = servers.instances.map(function (e) {
+    return e.id;
+  }).indexOf(message.guild.id);
+  if (serverPos != -1) { //if server is found
+    serverOfInterest = servers.instances[serverPos];
   }
 
 
-})
+  var userPos = serverOfInterest.users.map(function (e) {
+    return e.userID;
+  }).indexOf(IDofInterest);
+  if (userPos != -1) {
+    userOfInterest = serverOfInterest.users[userPos];
+  }
+  return userOfInterest;
+}
 
 
 //Music Player Operations
@@ -119,7 +348,9 @@ async function execute(message, serverQueue) {
   }
 
 
-  const songInfo = await ytdl.getInfo(args[1]);
+  const songInfo = await ytdl.getInfo(args[1]).catch(error => console.log(`Error: ${error}`));
+
+
 
   const song = {
     title: songInfo.videoDetails.title,
@@ -177,6 +408,9 @@ function stop(message, serverQueue) {
     );
   purge(message, 2);
   //message.channel.send(defaultMusicPlayerEmbed);    //Removed until further noticed
+  if (!serverQueue) {
+    return;
+  }
   serverQueue.songs = [];
 
   serverQueue.connection.dispatcher.end();
@@ -234,3 +468,85 @@ function purge(message, amount) {
 
 //Keep at end of file ;)
 bot.login(key.key);
+
+function saveServer() {
+  fs.writeFile('./servers.json', JSON.stringify(servers), function (err) {
+    if (err) {
+      console.log('There has been an error saving your server data.');
+      console.log(err.message);
+      return;
+    }
+    console.log('Server data saved successfully.')
+  });
+}
+
+function loadServers() {
+  try {
+    serverObj = JSON.parse(serverData);
+  } catch (err) {
+    console.log('There has been an error parsing your Server Data JSON.')
+    console.log(err);
+  }
+
+  return serverObj;
+}
+
+
+
+
+class User {
+  constructor(userObj) {
+    this.id = userObj.id;
+    this.username = userObj.username;
+    this.discriminator = userObj.discriminator;
+    this.messagesSent = 0;
+    this.voiceStartTime = 0;
+    this.voiceChatTime = 0;
+    this.voiceChatTimePersonalRecord = 0;
+    this.userStatus;
+    this.joinDate;
+
+
+
+  }
+  status(message) {
+    this.userStatus = message;
+  }
+  out() {
+    console.log(this.id);
+    console.log(this.username);
+    console.log(this.discriminator);
+    console.log(this.messag + sSent);
+    console.log(this.voiceChatTime);
+
+  }
+}
+
+
+class Server {
+  constructor(serverObj) {
+    this.id = serverObj.id;
+    this.serverName = serverObj.name;
+    this.serverRegion = serverObj.region;
+    //this.memberCount = serverObj.member_count;
+    this.users = serverObj.members.cache;
+    //this.users = serverObj.members;
+  }
+  out(message) {
+    console.log(message);
+  }
+  update() {
+    return;
+    //total messages sent in server - update for each user in server, add total messages sent in server
+  }
+}
+
+class ReactionRole {
+  constructor(channel, messageID, emoji, role, type){
+    this.channel = channel;
+    this.messageID = messageID;
+    this.emoji = emoji;
+    this.role = role;
+    this.type = type;
+  }
+}

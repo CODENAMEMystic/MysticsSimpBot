@@ -16,6 +16,10 @@ const {
 const {
   config
 } = require('process');
+const {
+  ifError
+} = require('assert');
+const { error } = require('console');
 
 const bot = new Client(); //Creates Discord Client
 
@@ -26,8 +30,12 @@ const PREFIX = "!"; //Defines the prefix to use bot commands
 var serverData = fs.readFileSync('./servers.json'),
   serverObj;
 
+var reactionRoleData = fs.readFileSync('./reactionRoles.json'),
+  reactionObj;
+
 
 var servers = loadServers();
+var reactionRoles = loadReactionRoles();
 
 
 
@@ -182,26 +190,128 @@ bot.on('message', message => {
       break;
 
     case "test":
-      const filter = message.author.id;
-      const reactionRoleEmbed = new Discord.MessageEmbed()
-        .setColor('#0099ff')
-        .setTitle('Reaction Role - Setup part 1')
-        .setDescription('First of all you need to tag the channel that you would like the ReactionRole message to be sent. You need to reply within 3 minutes of this message before I cancel it, this also goes for every single question that will follow.')
+      reactionRoleSetup(message);
+      break;
 
-      //SETUP PART 1 - TAG CHANNEL
+    case "te":
+      const reactionRoleEmbed = new Discord.MessageEmbed()
+        .setTitle(`Reaction Role List`)
+        .addFields({
+          name: 'Regular field title',
+          value: 'Some value here'
+        }, {
+          name: 'Regular field title',
+          value: 'Some value here'
+        }, {
+          name: 'Regular field title',
+          value: 'Some value here'
+        }, )
+      message.channel.send(reactionRoleEmbed);
+      break;
+    case "t":
+      //message.reply(message.guild.channels.cache.get("783496949998813280").name);
+      message.channel.messages.fetch("799848019204898838")
+        .then(message => message.reply(message.content))
+        .catch(console.error);
+
+      break;
+
+
+
+
+  }
+})
+
+var messageFailed = true;
+function reactionRoleSetup(message) {
+  var channel;
+  var channelObj;
+  var messageID;
+ 
+  var emoji;
+  var role;
+  var type;
+  const filter = message.author.id;
+  const reactionRoleEmbed = new Discord.MessageEmbed()
+    .setColor('#0099ff')
+    .setTitle('Reaction Role - Setup part 1')
+    .setDescription('First of all you need to tag the channel that you would like the ReactionRole message to be sent. You need to reply within 3 minutes of this message before I cancel it, this also goes for every single question that will follow.')
+
+  //SETUP PART 1 - TAG CHANNEL
+  message.channel.send(reactionRoleEmbed);
+
+  message.channel.awaitMessages(m => m.author.id == message.author.id, {
+    max: 1,
+    time: 10000
+  }).then(collected => {
+    console.log(`We received: ${collected.first().content}`)
+    channel = collected.first().content;
+    //Trim channel id if given through #
+    if (channel.startsWith("<#")) {
+      channel = channel.substring(2, channel.length - 1);
+    }
+
+    if (message.guild.channels.cache.get(channel) === undefined) {
+      message.reply(`I was unable to find this channel, please select an ID within this guild.`)
+      return;
+    }
+    channelObj = message.guild.channels.cache.get(channel);
+
+    const reactionRoleEmbed = new Discord.MessageEmbed()
+      .setTitle('Reaction Role - Setup Part 2')
+      .setDescription(`Nice type! Now time to choose your message! Please send me your message id.\nMake sure the message is in the ${collected.first().content}\nTo add multiple roles to a message choose the same id!\n\nExample (Do not use this ID as it will not work for you!)\n700020971150639195`);
+
+    //SETUP PART 2 - TAG MESSAGE ID
+    message.channel.send(reactionRoleEmbed);
+
+    message.channel.awaitMessages(m => m.author.id == message.author.id, {
+      max: 1,
+      time: 30000
+    }).then(collected => {
+      console.log(`We received: ${collected.first().content}`)
+      messageID = collected.first().content;
+
+      /*
+      channelObj.messages.fetch(collected.first().content)
+        .then(message => {
+          messageFailed = false;
+          message.reply(`MessageFailed: ${messageFailed}`)
+          
+        })
+        .catch((err) => {
+          console.error(err);
+          messageFailed = true;
+        });
+      *//*
+
+      locateMessage(channelObj, collected.first().content);
+      message.channel.send(`wow you fucking idiot Message failed: ${messageFailed}`)
+      if(messageFailed){
+        return;
+      }
+      */
+      
+      
+      
+
+      const reactionRoleEmbed = new Discord.MessageEmbed()
+        .setTitle('Reaction Role - Setup Part 3')
+        .setDescription(`Message ID: ${collected.first()}\nPlease REACT TO THIS MESSAGE with the reaction you want to use! DO NOT USE NITRO EMOJIS THAT IS NOT IN THIS GUILD (I have no way of accessing them!)`);
       message.channel.send(reactionRoleEmbed);
 
-      message.channel.awaitMessages(m => m.author.id == message.author.id, {
+      //SETUP PART 3 - 
+      message.channel.awaitMessages((m => m.author.id == message.author.id), {
         max: 1,
-        time: 10000
+        time: 30000
       }).then(collected => {
         console.log(`We received: ${collected.first().content}`)
+        emoji = collected.first().content;
 
         const reactionRoleEmbed = new Discord.MessageEmbed()
-          .setTitle('Reaction Role - Setup Part 2')
-          .setDescription(`Nice type! Now time to choose your message! Please send me your message id.\nMake sure the message is in the ${collected.first().content}\nTo add multiple roles to a message choose the same id!\n\nExample (Do not use this ID as it will not work for you!)\n700020971150639195`);
+          .setTitle('Reaction Role - Setup Part 4')
+          .setDescription(`Emoji Selected: ${collected.first()}\nPlease tag, write the name or the id of the role you want to give!`);
 
-        //SETUP PART 2 - TAG MESSAGE ID
+        //SETUP PART 4
         message.channel.send(reactionRoleEmbed);
 
         message.channel.awaitMessages(m => m.author.id == message.author.id, {
@@ -209,68 +319,39 @@ bot.on('message', message => {
           time: 10000
         }).then(collected => {
           console.log(`We received: ${collected.first().content}`)
+          role = collected.first().content;
 
           const reactionRoleEmbed = new Discord.MessageEmbed()
-            .setTitle('Reaction Role - Setup Part 3')
-            .setDescription(`Message ID: ${collected.first()}\nPlease REACT TO THIS MESSAGE with the reaction you want to use! DO NOT USE NITRO EMOJIS THAT IS NOT IN THIS GUILD (I have no way of accessing them!)`);
+            .setTitle('Reaction Role - Setup Part 5')
+            .setDescription(`Role Selected: ${collected.first()}\nNow you need to choose what type of reaction role you want. Please reply with 1-4.\nYou can combine them to add a role and remove a role\nI am going to explain what thoes numbers are for you:\n\nThis is the normal Reaction Role, when you react you get the role and when you remove the reaction it gets removed. Just like magic right?\n This creates a reaction that will only give a role and not remove it when they unreact.\nThis is basically just as number 2, only difference is that it removes the role instead of giving it\nIt is type 1 [gives the role and removes it] but it is inverted: The bot takes the role when you react and gives it back when you unreact.`);
+
+          //SETUP PART 5
           message.channel.send(reactionRoleEmbed);
 
-          //SETUP PART 3 - 
-          message.channel.awaitMessages((m => m.author.id == message.author.id), {
+          message.channel.awaitMessages(m => m.author.id == message.author.id, {
             max: 1,
-            time: 100000
+            time: 10000
           }).then(collected => {
             console.log(`We received: ${collected.first().content}`)
+            type = collected.first().content;
+
 
             const reactionRoleEmbed = new Discord.MessageEmbed()
-              .setTitle('Reaction Role - Setup Part 4')
-              .setDescription(`Emoji Selected: ${collected.first()}\nPlease tag, write the name or the id of the role you want to give!`);
-
-          //SETUP PART 4
-            message.channel.send(reactionRoleEmbed);
-
-            message.channel.awaitMessages(m => m.author.id == message.author.id, {
-              max: 1,
-              time: 10000
-            }).then(collected => {
-              console.log(`We received: ${collected.first().content}`)
-
-              const reactionRoleEmbed = new Discord.MessageEmbed()
-                .setTitle('Reaction Role - Setup Part 5')
-                .setDescription(`Role Selected: ${collected.first()}\nNow you need to choose what type of reaction role you want. Please reply with 1-4.\nYou can combine them to add a role and remove a role\nI am going to explain what thoes numbers are for you:\n\nThis is the normal Reaction Role, when you react you get the role and when you remove the reaction it gets removed. Just like magic right?\n This creates a reaction that will only give a role and not remove it when they unreact.\nThis is basically just as number 2, only difference is that it removes the role instead of giving it\nIt is type 1 [gives the role and removes it] but it is inverted: The bot takes the role when you react and gives it back when you unreact.`);
-              
-          //SETUP PART 5
-              message.channel.send(reactionRoleEmbed);
-
-              message.channel.awaitMessages(m => m.author.id == message.author.id, {
-                max: 1,
-                time: 10000
-              }).then(collected => {
-                console.log(`We received: ${collected.first().content}`)
-  
-                const reactionRoleEmbed = new Discord.MessageEmbed()
-                  .setTitle('Reaction Role - Complete')
-                  .setDescription(`You have completed setup`);
+              .setTitle('Reaction Role - Complete')
+              .setDescription(`You have completed setup`);
 
             //COMPLETE
-                message.channel.send(reactionRoleEmbed);
-                reactionRoleDatabase.instances.push(new ReactionRole(message.guild));
-  
-  
-  
-              }).catch(() => {
-                message.reply('No answer after 30 seconds, operation canceled.');
-              })
+            message.channel.send(reactionRoleEmbed);
+            reactionRoles.instances.push(new ReactionRole(message.guild.id, channel, messageID, emoji, role, type));
+            saveReactionRoles();
 
 
-
-            }).catch(() => {
-              message.reply('No answer after 30 seconds, operation canceled.');
-            })
 
           }).catch(() => {
             message.reply('No answer after 30 seconds, operation canceled.');
           })
+
+
 
         }).catch(() => {
           message.reply('No answer after 30 seconds, operation canceled.');
@@ -280,30 +361,32 @@ bot.on('message', message => {
         message.reply('No answer after 30 seconds, operation canceled.');
       })
 
+    }).catch(() => {
+      message.reply('No answer after 30 seconds, operation canceled.');
+    })
+
+  }).catch(() => {
+    message.reply('No answer after 30 seconds, operation canceled.');
+  })
+}
 
 
+function locateMessage(channel, messageID){
+  
+  channel.messages.fetch(messageID)
+        .then(message => {
+          message.reply(`MessageFailed: False`)
+          messageFailed = false;
+          return messageFailed;
+          
+        })
+        .catch((err) => {
+          console.error(err);
+          messageFailed = true;
+          return messageFailed;
+        });
 
-
-
-
-      /*
-      const reactionRoleEmbed = new Discord.MessageEmbed()
-        .setColor('#0099ff')
-        .setTitle('Reaction Role - Setup part 1')
-      	.setDescription('First of all you need to tag the channel that you would like the ReactionRole message to be sent. You need to reply within 3 minutes of this message before I cancel it, this also goes for every single question that will follow.')
-
-      message.channel.send(reactionRoleEmbed);
-      */
-      break;
-
-
-
-
-  }
-})
-
-
-
+}
 
 
 function locate(message, IDofInterest) {
@@ -480,6 +563,28 @@ function saveServer() {
   });
 }
 
+function saveReactionRoles() {
+  fs.writeFile('./reactionRoles.json', JSON.stringify(reactionRoles), function (err) {
+    if (err) {
+      console.log('There has been an error saving your server data.');
+      console.log(err.message);
+      return;
+    }
+    console.log('Server data saved successfully.')
+  });
+}
+
+function loadReactionRoles() {
+  try {
+    reactionObj = JSON.parse(reactionRoleData);
+  } catch (err) {
+    console.log('There has been an error parsing your Server Data JSON.')
+    console.log(err);
+  }
+
+  return reactionObj;
+}
+
 function loadServers() {
   try {
     serverObj = JSON.parse(serverData);
@@ -489,6 +594,17 @@ function loadServers() {
   }
 
   return serverObj;
+}
+
+
+function makeid() {
+  var result = '';
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for (var i = 0; i < 25; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 }
 
 
@@ -542,11 +658,19 @@ class Server {
 }
 
 class ReactionRole {
-  constructor(channel, messageID, emoji, role, type){
-    this.channel = channel;
-    this.messageID = messageID;
+  constructor(guildID, channel, messageID, emoji, role, type) {
+    this.guildID = guildID;
+    this.reactionID = makeid();
     this.emoji = emoji;
-    this.role = role;
+    this.messageID = messageID;
+    this.channel = channel;
     this.type = type;
+    this.role = role;
+  }
+  out(message) {
+    console.log(message);
+  }
+  update() {
+    return;
   }
 }

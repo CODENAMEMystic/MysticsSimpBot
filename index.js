@@ -57,6 +57,10 @@ client.on('message', message => {
         case "ban":
             client.commands.get('ban').execute(message, args);
             break;
+        
+        case "reactionrole":
+            client.commands.get('reactionrole').execute(message, args, Discord, client);
+            break;
 
             //ANY TEST COMMANDS WILL BE LISTED BELOW
         case "permissiontest":

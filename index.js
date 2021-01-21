@@ -9,6 +9,8 @@ const prefix = '!';
 
 const fs = require('fs');
 
+const memberCounter = require('./counters/membercounter.js');
+
 client.commands = new Discord.Collection();
 
 
@@ -22,15 +24,17 @@ for (const file of commandFiles) {
 
 client.on('ready', () => {
     console.log('Mystic Simp Bot is online!');
+    memberCounter(client);
 });
 
 client.on('guildMemberAdd', guildMember => {
     guildMember.guild.channels.cache.get('783496949608874000').send(`Welcome to the server <@${guildMember.user.id}>`);
 });
-client.on('guildMemberRemove', guildMember => {
+
+/*client.on('guildMemberRemove', guildMember => {
     guildMember.guild.channels.cache.get('783496949608874000').send(`<@${guildMember.user.id}> has left`);
 });
-
+*/
 
 client.on('message', message => {
 

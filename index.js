@@ -38,6 +38,10 @@ client.on('message', message => {
         case "ping":
             client.commands.get('ping').execute(message, args);
             break;
+        
+        case "clear":
+            client.commands.get('clear').execute(message, args);
+            break;
 
             //ANY TEST COMMANDS WILL BE LISTED BELOW
         case "permissiontest":

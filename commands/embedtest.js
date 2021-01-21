@@ -1,7 +1,7 @@
 module.exports = {
     name: 'embedtest',
     description: "this is a embed test command!",
-    execute(message, args, Discord) {
+    execute(client, message, args, Discord) {
         
         const newEmbed = new Discord.MessageEmbed()
         .setColor('#304281')

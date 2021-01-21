@@ -1,7 +1,7 @@
 module.exports = {
     name: 'ban',
     description: "This command bans a member!",
-    execute(message, args) {
+    execute(client, message, args) {
 
         if (message.member.permissions.has("BAN_MEMBERS")) {
             const member = message.mentions.users.first();

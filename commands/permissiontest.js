@@ -1,7 +1,7 @@
 module.exports = {
     name: 'permissiontest',
     description: "this is a permission test command!",
-    execute(message, args) {
+    execute(client, message, args) {
         //Start of command details
         var testCommand = "ADMINISTRATOR" //Change this to test different permission flags
 

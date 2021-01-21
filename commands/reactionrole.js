@@ -1,7 +1,7 @@
 module.exports = {
     name: 'reactionrole',
     description: "Use this command to assign roles to members who react",
-    async execute(message, args, Discord, client) {
+    async execute(client, message, args, Discord) {
 
         const channel = '783496949608874001';
         const testRole1 = message.guild.roles.cache.find(role => role.name === "one");

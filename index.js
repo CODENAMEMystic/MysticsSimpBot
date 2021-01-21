@@ -24,6 +24,13 @@ client.on('ready', () => {
     console.log('Mystic Simp Bot is online!');
 });
 
+client.on('guildMemberAdd', guildMember => {
+    guildMember.guild.channels.cache.get('783496949608874000').send(`Welcome to the server <@${guildMember.user.id}>`);
+});
+client.on('guildMemberRemove', guildMember => {
+    guildMember.guild.channels.cache.get('783496949608874000').send(`<@${guildMember.user.id}> has left`);
+});
+
 
 client.on('message', message => {
 

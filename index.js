@@ -1,4 +1,4 @@
-//Author: Tanner Overly - Mystic	const Discord = require('discord.js');
+//Author: Tanner Overly - Mystic
 //Version: 2.0.0
 
 const Discord = require('discord.js');

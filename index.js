@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const key = require('./secret.js'); //Saved variable info
+require('dotenv').config();
 
 const client = new Discord.Client({
     partials: ["MESSAGE", "CHANNEL", "REACTION"]
@@ -16,4 +16,4 @@ client.events = new Discord.Collection();
     require(`./handlers/${handler}`)(client, Discord);
 })
 
-client.login(key.key);
+client.login(process.env.DISCORD_TOKEN);

@@ -6,6 +6,6 @@ module.exports = async (client) => {
 
         channel.setName(`Total Members: ${memberCount.toLocaleString()}`);
         console.log('Updating Member Count');
-    }, 5000);
+    }, 36000000);
     
 }

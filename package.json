@@ -1,6 +1,6 @@
 {
   "name": "mysticssimpbot",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Mystics wonderful device",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,13 @@
   },
   "homepage": "https://github.com/Tanner1638/MysticsSimpBot#readme",
   "dependencies": {
-    "discord.js": "^12.5.1"
+    "@discordjs/opus": "^0.3.3",
+    "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0",
+    "ffmpeg": "0.0.4",
+    "ffmpeg-static": "^4.2.7",
+    "fluent-ffmpeg": "^2.1.2",
+    "yt-search": "^2.5.2",
+    "ytdl-core": "^4.4.4"
   }
 }

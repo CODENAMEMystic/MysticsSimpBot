@@ -1,3 +1,6 @@
+//Author: Tanner Overly - Mystic	const Discord = require('discord.js');
+//Version: 2.0.0
+
 const Discord = require('discord.js');
 require('dotenv').config();
 

@@ -1,3 +1,5 @@
+[![Coverage Status](https://img.shields.io/github/checks-status/Tanner1638/MysticsSimpBot/main)](https://github.com/Tanner1638/MysticsSimpBot/)
+[![Website](https://img.shields.io/badge/website-visit-brightgreen)](https://strangeislandstudios.com)
 # MysticsSimpBot
 Mystics wonderful device
 

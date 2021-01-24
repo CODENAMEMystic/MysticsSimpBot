@@ -1,5 +1,5 @@
 module.exports = {
-    name: 'kick',
+    name: "kick",
     description: "This command kicks a member!",
     execute(client, message, args) {
 
@@ -8,7 +8,7 @@ module.exports = {
             if (member) {
                 const memberTarget = message.guild.members.cache.get(member.id);
                 memberTarget.kick();
-                message.channel.send(`User has been kicked`);
+                message.channel.send("User has been kicked");
             } else {
                 message.channel.send("Member does not exist");
             }
@@ -18,4 +18,4 @@ module.exports = {
         }
 
     }
-}
+};

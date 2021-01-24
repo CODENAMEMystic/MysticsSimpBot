@@ -1,3 +1,3 @@
 module.exports = () => {
-    console.log('Mystic bot is online!');
+    console.log("Mystic bot is online!");
 }

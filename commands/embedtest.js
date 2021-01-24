@@ -1,5 +1,5 @@
 module.exports = {
-    name: 'embedtest',
+    name: "embedtest",
     description: "this is a embed test command!",
     execute(client, message, args, Discord) {
         
@@ -13,9 +13,9 @@ module.exports = {
             {name: 'Rule 2', value: 'Be cool'},
             {name: 'Rule 4', value: 'Be pog'}
         )
-        .setFooter('Make sure to check out the rules channel');
+        .setFooter("Make sure to check out the rules channel");
 
         message.channel.send(newEmbed);
 
     }
-}
+};

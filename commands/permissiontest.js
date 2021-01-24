@@ -1,12 +1,12 @@
 module.exports = {
-    name: 'permissiontest',
+    name: "permissiontest",
     description: "this is a permission test command!",
     execute(client, message, args) {
         //Start of command details
         var testCommand = "ADMINISTRATOR" //Change this to test different permission flags
 
         //Check if member has a SPECIFIC ROLE
-        if (message.member.roles.cache.has('783496949608873994')) {
+        if (message.member.roles.cache.has("783496949608873994")) {
             message.channel.send("You have a specific role!");
         } else {
             message.channel.send("You dont have a specific role!");
@@ -21,7 +21,7 @@ module.exports = {
         }
 
     }
-}
+};
 
 /*
 NOTES:

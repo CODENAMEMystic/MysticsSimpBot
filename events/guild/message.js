@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 module.exports = (Discord, client, message) => {
     const prefix = process.env.PREFIX;
 

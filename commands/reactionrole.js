@@ -1,19 +1,19 @@
 module.exports = {
-    name: 'reactionrole',
+    name: "reactionrole",
     description: "Use this command to assign roles to members who react",
     async execute(client, message, args, Discord) {
 
-        const channel = '783496949608874001';
+        const channel = "783496949608874001";
         const testRole1 = message.guild.roles.cache.find(role => role.name === "one");
         const testRole2 = message.guild.roles.cache.find(role => role.name === "two");
 
-        const role1Emoji = '😀';
-        const role2Emoji = '😎';
+        const role1Emoji = "😀";
+        const role2Emoji = "😎";
 
         let embed = new Discord.MessageEmbed()
-            .setColor('#e42643')
-            .setTitle('Choose a role')
-            .setDescription('Choosing a role will... give you a role\n\n'
+            .setColor("#e42643")
+            .setTitle("Choose a role")
+            .setDescription("Choosing a role will... give you a role\n\n"
                 + `${role1Emoji} for role 1\n`
                 + `${role2Emoji} for role 2`);
         
@@ -21,7 +21,7 @@ module.exports = {
         messageEmbed.react(role1Emoji);
         messageEmbed.react(role2Emoji);
 
-        client.on('messageReactionAdd', async (reaction, user) => {
+        client.on("messageReactionAdd", async (reaction, user) => {
             if (reaction.message.partial) await reaction.message.fetch();
             if (reaction.partial) await reaction.fetch();
             if (user.bot) return;
@@ -40,7 +40,7 @@ module.exports = {
             }
         });
 
-        client.on('messageReactionRemove', async (reaction, user) => {
+        client.on("messageReactionRemove", async (reaction, user) => {
             if (reaction.message.partial) await reaction.message.fetch();
             if (reaction.partial) await reaction.fetch();
             if (user.bot) return;
@@ -60,4 +60,4 @@ module.exports = {
         });
 
     }
-}
+};

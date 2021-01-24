@@ -1,9 +1,9 @@
 module.exports = {
-    name: 'mute',
+    name: "mute",
     description: "This mutes a member",
     execute(client, message, args) {
 
         
 
     }
-}
+};

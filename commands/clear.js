@@ -1,5 +1,5 @@
 module.exports = {
-    name: 'clear',
+    name: "clear",
     description: "this is a clear command!",
     async execute(client, message, args) {
         
@@ -14,4 +14,4 @@ module.exports = {
         });
 
     }
-}
+};

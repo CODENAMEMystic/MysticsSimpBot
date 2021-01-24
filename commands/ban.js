@@ -1,5 +1,5 @@
 module.exports = {
-    name: 'ban',
+    name: "ban",
     description: "This command bans a member!",
     execute(client, message, args) {
 
@@ -8,7 +8,7 @@ module.exports = {
             if (member) {
                 const memberTarget = message.guild.members.cache.get(member.id);
                 memberTarget.ban();
-                message.channel.send(`User has been banned`);
+                message.channel.send("User has been banned");
             } else {
                 message.channel.send("Member does not exist");
             }
@@ -18,4 +18,4 @@ module.exports = {
         }
         
     }
-}
+};

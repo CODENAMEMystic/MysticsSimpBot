@@ -1,9 +1,9 @@
 module.exports = {
-    name: 'COMMANDNAME',
+    name: "COMMANDNAME",
     description: "DESCRIPTION",
     execute(message, args) {
 
         
 
     }
-}
+};

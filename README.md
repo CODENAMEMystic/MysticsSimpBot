@@ -1,3 +1,4 @@
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f46875317a2442ba8ccc972f58adbdc7)](https://www.codacy.com/gh/Tanner1638/MysticsSimpBot/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Tanner1638/MysticsSimpBot&amp;utm_campaign=Badge_Grade)
 [![Coverage Status](https://img.shields.io/github/checks-status/Tanner1638/MysticsSimpBot/main)](https://github.com/Tanner1638/MysticsSimpBot/)
 [![Website](https://img.shields.io/badge/website-visit-brightgreen)](https://strangeislandstudios.com)
 # MysticsSimpBot
